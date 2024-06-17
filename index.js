@@ -1,69 +1,38 @@
 document.addEventListener('DOMContentLoaded', function() {
-    const productList = document.getElementById('product-list');
-    const cartList = document.getElementById('cart-list');
-    const cartTotal = document.getElementById('cart-total');
+    const weatherForm = document.getElementById('weather-form');
+    const cityInput = document.getElementById('city-input');
+    const cityName = document.getElementById('city-name');
+    const weatherDescription = document.getElementById('weather-description');
+    const temperature = document.getElementById('temperature');
+    const humidity = document.getElementById('humidity');
+    const weatherDisplay = document.getElementById('weather-display');
 
-    const products = [
-        { id: 1, name: 'Product 1', price: 10.00 },
-        { id: 2, name: 'Product 2', price: 20.00 },
-        { id: 3, name: 'Product 3', price: 30.00 },
-        { id: 4, name: 'Product 4', price: 40.00 },
-        { id: 5, name: 'Product 5', price: 50.00 },
-    ];
+    const apiKey = "51b4b7cb106843f55f9d433db0c4e133"; // Replace with your OpenWeatherMap API key
 
-    let cart = JSON.parse(localStorage.getItem('cart')) || [];
+    weatherForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const city = cityInput.value;
+        getWeather(city);
+    });
 
-    function displayProducts() {
-        products.forEach(product => {
-            const productDiv = document.createElement('div');
-            productDiv.className = 'product';
-            productDiv.innerHTML = `
-                <h3>${product.name}</h3>
-                <p>$${product.price.toFixed(2)}</p>
-                <button onclick="addToCart(${product.id})">Add to Cart</button>
-            `;
-            productList.appendChild(productDiv);
-        });
+    async function getWeather(city) {
+        try {
+            const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`);
+            if (!response.ok) {
+                throw new Error('City not found');
+            }
+            const data = await response.json();
+            displayWeather(data);
+        } catch (error) {
+            alert(error.message);
+        }
     }
 
-    function displayCart() {
-        cartList.innerHTML = '';
-        cart.forEach(item => {
-            const cartItemDiv = document.createElement('div');
-            cartItemDiv.className = 'cart-item';
-            cartItemDiv.innerHTML = `
-                <h3>${item.name}</h3>
-                <p>$${item.price.toFixed(2)}</p>
-                <button onclick="removeFromCart(${item.id})">Remove</button>
-            `;
-            cartList.appendChild(cartItemDiv);
-        });
-        updateTotal();
+    function displayWeather(data) {
+        cityName.textContent = `${data.name}, ${data.sys.country}`;
+        weatherDescription.textContent = data.weather[0].description;
+        temperature.textContent = `Temperature: ${data.main.temp}°C`;
+        humidity.textContent = `Humidity: ${data.main.humidity}%`;
+        weatherDisplay.style.display = 'block';
     }
-
-    function addToCart(id) {
-        const product = products.find(p => p.id === id);
-        cart.push(product);
-        localStorage.setItem('cart', JSON.stringify(cart));
-        displayCart();
-    }
-
-    function removeFromCart(id) {
-        cart = cart.filter(item => item.id !== id);
-        localStorage.setItem('cart', JSON.stringify(cart));
-        displayCart();
-    }
-
-    function updateTotal() {
-        const total = cart.reduce((sum, item) => sum + item.price, 0);
-        cartTotal.textContent = total.toFixed(2);
-    }
-
-    // Initialize app
-    displayProducts();
-    displayCart();
-
-    // Expose functions to global scope
-    window.addToCart = addToCart;
-    window.removeFromCart = removeFromCart;
-});
+})
