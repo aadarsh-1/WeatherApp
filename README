@@ -1,0 +1,10 @@
+# Weather App
+
+A simple weather app that fetches current weather data using the OpenWeatherMap API and displays it to the user. This project demonstrates the use of vanilla JavaScript, API integration, and responsive design principles.
+
+## Features
+
+- Fetch current weather data from the OpenWeatherMap API.
+- Display weather conditions, temperature, humidity, and city name.
+- Allow users to search for weather information by city name.
+- Responsive design for better user experience on different devices.
